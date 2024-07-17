@@ -77,7 +77,8 @@ func LoginUser(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	if err := database.DB.Where("email = ? AND password = ?", requestLoginUser.Email, requestLoginUser.Password).First(&model.User{}).Error; err != nil {
+	user := new(model.User)
+	if err := database.DB.Where("email = ? AND password = ?", requestLoginUser.Email, requestLoginUser.Password).First(&user).Error; err != nil {
 		errResp := &fiber.Map{
 			"message": "Invalid email or password",
 		}
@@ -87,7 +88,7 @@ func LoginUser(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	return c.Status(200).JSON(requestLoginUser)
+	return c.Status(200).JSON(user)
 }
 
 func GetUserById(c *fiber.Ctx) error {
