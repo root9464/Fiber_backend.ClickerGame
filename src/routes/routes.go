@@ -2,8 +2,10 @@ package routes
 
 import (
 	admin "root/src/routes/Admin"
-	amplifiers "root/src/routes/Amplifiers"
+
 	"root/src/routes/auth"
+	"root/src/routes/other/clicks"
+	improvement "root/src/routes/other/improvement"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -15,13 +17,12 @@ func AllRoutes(app *fiber.App) {
 	api.Post("auth/login", auth.LoginUser)
 	api.Get("auth/user/:userId", auth.GetUserById)
 
-	api.Post("amplifiers/saveClicks", amplifiers.SaveClicks)
-
+	api.Post("improvement/addUserImprovement", improvement.AddUserImprovement)
+	api.Get("improvement/getImprovements", improvement.GetImprovements)
+	api.Post("saveClicks", clicks.SaveClicks)
 	adminDh := api.Group("/admin")
 
 	adminDh.Post("improvements/create", admin.CreateImprovement)
-	adminDh.Post("addUserImprovement", admin.AddUserImprovement)
-	adminDh.Get("getUserImprovements", admin.GetUserImprovements) //*
 	adminDh.Post("deleteUserImprovement", admin.DeleteUserImprovement)
 	adminDh.Post("deleteImprovement", admin.DeleteImprovement)
 }
