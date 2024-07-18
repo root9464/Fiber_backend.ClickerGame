@@ -3,10 +3,11 @@ package model
 import "gorm.io/gorm"
 
 type User struct {
-	Id       uint   `gorm:"primary_key; not null" json:"id"`
-	Name     string `gorm:"not null; unique" json:"name"`
-	Email    string `gorm:"unique ;not null" json:"email"`
-	Password string `json:"password"`
+	Id        uint   `gorm:"primary_key; not null" json:"id"`
+	Name      string `gorm:"not null; unique" json:"name"`
+	LastName  string `json:"last_name"`
+	FirstName string `json:"first_name"`
+	Hash      string `json:"hash" gorm:"not null"`
 }
 
 type ProgressClicker struct {

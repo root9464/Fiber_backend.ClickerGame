@@ -14,7 +14,6 @@ func AllRoutes(app *fiber.App) {
 	api := app.Group("/api")
 
 	api.Post("auth/register", auth.RegisterUser)
-	api.Post("auth/login", auth.LoginUser)
 	api.Get("auth/user/:userId", auth.GetUserById)
 
 	api.Post("improvement/addUserImprovement", improvement.AddUserImprovement)

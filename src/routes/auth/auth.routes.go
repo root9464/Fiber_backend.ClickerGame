@@ -6,13 +6,17 @@ import (
 	database "root/src/database/controller"
 	"root/src/database/model"
 	"root/src/util"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
 )
 
 func RegisterUser(c *fiber.Ctx) error {
-	user := new(model.User)
+	type Request struct {
+		InitDataRaw string `json:"init_data"`
+	}
+	user := new(Request)
 
 	if err := c.BodyParser(user); err != nil {
 		errResp := &fiber.Map{
@@ -24,9 +28,9 @@ func RegisterUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	if user.Name == "" || user.Email == "" || user.Password == "" {
+	if user.InitDataRaw == "" {
 		errResp := &fiber.Map{
-			"message": "All fields are required",
+			"message": "Init data is required",
 		}
 		if err := c.Status(500).JSON(errResp); err != nil {
 			log.Fatal(err)
@@ -34,9 +38,10 @@ func RegisterUser(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	if !util.IsEmailValid(user.Email) {
+	isValidDataRaw := util.IsUserIitDataValid(user.InitDataRaw)
+	if !isValidDataRaw {
 		errResp := &fiber.Map{
-			"message": "Invalid email",
+			"message": "Init data is invalid",
 		}
 		if err := c.Status(500).JSON(errResp); err != nil {
 			log.Fatal(err)
@@ -44,32 +49,23 @@ func RegisterUser(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	database.DB.Create(&user)
+	userData, err := util.GetDataInInitDataRaw(user.InitDataRaw)
 
-	return c.Status(200).JSON(user)
-}
-
-func LoginUser(c *fiber.Ctx) error {
-	type Request struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
-	}
-
-	requestLoginUser := new(Request)
-
-	if err := c.BodyParser(requestLoginUser); err != nil {
+	if err != nil {
 		errResp := &fiber.Map{
 			"message": err.Error(),
 		}
 		if err := c.Status(500).JSON(errResp); err != nil {
 			log.Fatal(err)
 		}
-		return err
+		return c.SendStatus(500)
 	}
 
-	if requestLoginUser.Email == "" || requestLoginUser.Password == "" {
+	userId, err := strconv.Atoi(userData["user_id"])
+
+	if err != nil {
 		errResp := &fiber.Map{
-			"message": "All fields are required",
+			"message": err.Error(),
 		}
 		if err := c.Status(500).JSON(errResp); err != nil {
 			log.Fatal(err)
@@ -77,18 +73,15 @@ func LoginUser(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	user := new(model.User)
-	if err := database.DB.Where("email = ? AND password = ?", requestLoginUser.Email, requestLoginUser.Password).First(&user).Error; err != nil {
-		errResp := &fiber.Map{
-			"message": "Invalid email or password",
-		}
-		if err := c.Status(500).JSON(errResp); err != nil {
-			log.Fatal(err)
-		}
-		return c.SendStatus(500)
+	userResponseData := &model.User{
+		Id:        uint(userId),
+		Name:      userData["username"],
+		LastName:  userData["last_name"],
+		FirstName: userData["first_name"],
+		Hash:      userData["hash"],
 	}
-
-	return c.Status(200).JSON(user)
+	database.DB.Create(&userResponseData)
+	return c.Status(200).JSON(userResponseData)
 }
 
 func GetUserById(c *fiber.Ctx) error {
