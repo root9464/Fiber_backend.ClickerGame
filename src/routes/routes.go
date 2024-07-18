@@ -13,6 +13,10 @@ import (
 func AllRoutes(app *fiber.App) {
 	api := app.Group("/api")
 
+	api.Get("auth/ping", func(c *fiber.Ctx) error {
+		return c.Status(200).JSON("pong")
+	})
+
 	api.Post("auth/register", auth.RegisterUser)
 	api.Get("auth/user/:userId", auth.GetUserById)
 
