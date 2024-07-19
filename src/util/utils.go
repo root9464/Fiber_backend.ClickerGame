@@ -18,6 +18,7 @@ func IsEmailValid(e string) bool {
 	return emailRegex.MatchString(e)
 }
 
+// zombie code
 func IsUserIitDataValid(initDataRaw string) bool {
 	if initDataRaw == "" {
 		return false
@@ -48,7 +49,7 @@ func GetDataInInitDataRaw(query string) (map[string]string, error) {
 	}
 
 	userJSON := v.Get("user")
-	var user User
+	user := new(User)
 	err = json.Unmarshal([]byte(userJSON), &user)
 	if err != nil {
 		return nil, err
@@ -64,4 +65,41 @@ func GetDataInInitDataRaw(query string) (map[string]string, error) {
 		"auth_date":     v.Get("auth_date"),
 		"hash":          v.Get("hash"),
 	}, nil
+}
+
+func ValidateParams(input string) bool {
+	type userDataParam struct {
+		ID              int    `json:"id"`
+		FirstName       string `json:"first_name"`
+		LastName        string `json:"last_name"`
+		Username        string `json:"username"`
+		LanguageCode    string `json:"language_code"`
+		AllowsWriteToPM bool   `json:"allows_write_to_pm"`
+	}
+
+	params, err := url.ParseQuery(input)
+	if err != nil {
+		return false
+	}
+
+	userData := new(userDataParam)
+	err = json.Unmarshal([]byte(params.Get("user")), &userData)
+	if err != nil {
+		return false
+	}
+
+	requiredParams := []string{
+		"chat_instance",
+		"chat_type",
+		"auth_date",
+		"hash",
+	}
+
+	for _, param := range requiredParams {
+		if _, ok := params[param]; !ok {
+			return false
+		}
+	}
+
+	return true
 }

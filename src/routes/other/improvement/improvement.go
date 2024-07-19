@@ -8,11 +8,13 @@ import (
 )
 
 func AddUserImprovement(c *fiber.Ctx) error {
-	var req struct {
+	type Request struct {
 		UserName      string `json:"user_name"`
 		ImprovementID int    `json:"improvement_id"`
 		Value         int    `json:"value"`
 	}
+
+	req := new(Request)
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid request body"})

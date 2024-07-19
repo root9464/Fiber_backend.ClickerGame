@@ -38,7 +38,7 @@ func RegisterUser(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	isValidDataRaw := util.IsUserIitDataValid(user.InitDataRaw)
+	isValidDataRaw := util.ValidateParams(user.InitDataRaw)
 	if !isValidDataRaw {
 		errResp := &fiber.Map{
 			"message": "Init data is invalid",
@@ -80,6 +80,7 @@ func RegisterUser(c *fiber.Ctx) error {
 		FirstName: userData["first_name"],
 		Hash:      userData["hash"],
 	}
+
 	database.DB.Create(&userResponseData)
 	return c.Status(200).JSON(userResponseData)
 }
@@ -96,7 +97,7 @@ func GetUserById(c *fiber.Ctx) error {
 		return c.SendStatus(500)
 	}
 
-	var user model.User
+	user := new(model.User)
 
 	response := database.DB.First(&user, "id = ?", id)
 
