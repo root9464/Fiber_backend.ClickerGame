@@ -30,7 +30,7 @@ type UserImprovement struct {
 	UserName      string      `json:"user_name"`
 	ImprovementId uint        `gorm:"not null; index" json:"improvement_id"`
 	Improvement   Improvement `gorm:"foreignkey:ImprovementId; references:Id" json:"-"`
-	Value         int         `json:"value"`
+	Value         int         `gorm:"check:Value <= 3" json:"value"`
 }
 
 func (u *User) AfterCreate(tx *gorm.DB) error {

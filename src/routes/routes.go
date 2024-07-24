@@ -22,6 +22,7 @@ func AllRoutes(app *fiber.App) {
 
 	api.Post("improvement/addUserImprovement", improvement.AddUserImprovement)
 	api.Get("improvement/getImprovements", improvement.GetImprovements)
+	api.Get("improvement/getUserImprovements/:userId", improvement.GetUserImprovements)
 	api.Post("saveClicks", clicks.SaveClicks)
 	adminDh := api.Group("/admin")
 

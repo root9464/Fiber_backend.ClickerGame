@@ -1,6 +1,7 @@
 package improvement
 
 import (
+	"log"
 	database "root/src/database/controller"
 	"root/src/database/model"
 
@@ -63,4 +64,35 @@ func GetImprovements(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"message": "error getting user improvements"})
 	}
 	return c.Status(200).JSON(improvements)
+}
+
+func GetUserImprovements(c *fiber.Ctx) error {
+	userId := c.Params("userId")
+
+	if userId == "" {
+		errResp := &fiber.Map{
+			"message": "Improvement id is required",
+		}
+		if err := c.Status(500).JSON(errResp); err != nil {
+			log.Fatal(err)
+		}
+		return c.SendStatus(500)
+	}
+
+	userImprovements := new([]model.UserImprovement)
+	err := database.DB.Where("user_id = ?", userId).Find(&userImprovements).Error
+
+	if err != nil {
+		errResp := &fiber.Map{
+			"message": "Error getting user improvements",
+		}
+		if err := c.Status(500).JSON(errResp); err != nil {
+			log.Fatal(err)
+		}
+		return c.SendStatus(500)
+
+	}
+
+	return c.Status(200).JSON(userImprovements)
+
 }

@@ -31,5 +31,4 @@ func core() {
 
 func main() {
 	core()
-
 }
