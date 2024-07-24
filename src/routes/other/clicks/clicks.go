@@ -9,7 +9,12 @@ import (
 )
 
 func SaveClicks(c *fiber.Ctx) error {
-	request := new(model.ProgressClicker)
+	type Request struct {
+		UserId int `json:"user_id"`
+		Clicks int `json:"clicks"`
+	}
+
+	request := new(Request)
 
 	if err := c.BodyParser(request); err != nil {
 		errResp := &fiber.Map{
@@ -21,6 +26,6 @@ func SaveClicks(c *fiber.Ctx) error {
 		return err
 	}
 
-	database.DB.Model(&model.ProgressClicker{}).Where("id = ?", 1).Update("clicks", request.Clicks)
+	database.DB.Model(&model.ProgressClicker{}).Where("user_id = ?", request.UserId).Update("clicks", request.Clicks)
 	return c.Status(200).JSON(fiber.Map{"message": "Success"})
 }
